@@ -1,0 +1,218 @@
+.app {
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.editable-title {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.editable-title:hover {
+  opacity: 0.8;
+}
+
+.title-input {
+  color: white;
+  background: transparent;
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 2.5rem;
+  text-align: center;
+  outline: none;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.title-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.manual-input {
+  display: flex;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.manual-url-input {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.top-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 2px;
+  max-width: 1000px;
+  margin: 0 auto;
+  aspect-ratio: 5/5;
+  height: calc(100vh - 280px);
+  min-height: 500px;
+  background: #333;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.list-slot {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+.list-slot.filled {
+  background: white;
+  cursor: grab;
+}
+
+.list-slot.filled:active {
+  cursor: grabbing;
+}
+
+.list-slot.filled:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.list-slot.dragging {
+  opacity: 0.8;
+  transform: scale(1.1);
+  z-index: 1000;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.list-slot.drag-over {
+  transform: scale(1.1);
+  background: rgba(255, 107, 107, 0.3);
+  border: 2px solid #ff6b6b;
+}
+
+.list-slot.empty {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  cursor: default;
+}
+
+.list-slot.empty:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.list-slot.empty.drag-over {
+  background: rgba(255, 107, 107, 0.2);
+  border: 3px solid #ff6b6b;
+}
+
+.list-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.remove-hint {
+  position: absolute;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  background: rgba(255, 107, 107, 0.9);
+  color: white;
+  text-align: center;
+  padding: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  transform: translateY(100%);
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.drag-hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  text-align: center;
+  padding: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  transform: translateY(100%);
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.list-slot.filled:hover .remove-hint,
+.list-slot.filled:hover .drag-hint {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.empty-slot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-text {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 10px;
+  }
+  
+  .editable-title {
+    font-size: 2rem;
+  }
+  
+  .title-input {
+    font-size: 2rem;
+  }
+  
+  .top-list {
+    height: calc(100vh - 320px);
+    gap: 1px;
+  }
+  
+  .remove-hint,
+  .drag-hint {
+    font-size: 9px;
+    padding: 4px;
+  }
+}
