@@ -208,6 +208,10 @@ const App: React.FC = () => {
           </div>
         ))}
       </div>
+      
+      <footer className="footer">
+        Vibe coded with ❤️ for my squad: Beast, Brink, Dubs, Joshy, K-lbs, Matt, Myles, Rob Dollaz and anyone else that likes making lists.
+      </footer>
     </div>
   );
 };
