@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [listTitle, setListTitle] = useState<string>('Top 25');
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   const dragCounter = useRef(0);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const touchedItem = useRef<number | null>(null);
 
   const addManualItem = useCallback(() => {
     if (!manualImageUrl.trim()) return;
@@ -133,6 +135,76 @@ const App: React.FC = () => {
     setIsEditingTitle(false);
   }, []);
 
+  // Touch event handlers for mobile drag & drop
+  const handleTouchStart = useCallback((e: React.TouchEvent, index: number) => {
+    if (!topList[index]) return;
+    
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    touchedItem.current = index;
+    setDraggedItem(index);
+  }, [topList]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling
+    
+    if (touchedItem.current === null) return;
+    
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Find the closest list slot
+    const listSlot = element?.closest('.list-slot');
+    if (listSlot) {
+      const slots = Array.from(document.querySelectorAll('.list-slot'));
+      const targetIndex = slots.indexOf(listSlot);
+      if (targetIndex !== -1) {
+        setDragOverIndex(targetIndex);
+      }
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchedItem.current === null) {
+      setDraggedItem(null);
+      setDragOverIndex(null);
+      return;
+    }
+    
+    const touch = e.changedTouches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const listSlot = element?.closest('.list-slot');
+    
+    if (listSlot) {
+      const slots = Array.from(document.querySelectorAll('.list-slot'));
+      const dropIndex = slots.indexOf(listSlot);
+      
+      if (dropIndex !== -1 && dropIndex !== touchedItem.current) {
+        // Perform the same logic as handleDrop
+        setTopList(prev => {
+          const newList = [...prev];
+          const draggedItemData = newList[touchedItem.current!];
+          
+          newList.splice(touchedItem.current!, 1);
+          const adjustedDropIndex = touchedItem.current! < dropIndex ? dropIndex - 1 : dropIndex;
+          newList.splice(adjustedDropIndex, 0, draggedItemData);
+          
+          while (newList.length < 25) {
+            newList.push(null);
+          }
+          
+          return newList;
+        });
+      }
+    }
+    
+    // Reset touch state
+    touchStartPos.current = null;
+    touchedItem.current = null;
+    setDraggedItem(null);
+    setDragOverIndex(null);
+  }, []);
+
   return (
     <div className="app">
       <header>
@@ -186,6 +258,9 @@ const App: React.FC = () => {
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
+            onTouchStart={(e) => handleTouchStart(e, index)}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             onClick={() => item && removeFromList(index)}
           >
             {item ? (
