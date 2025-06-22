@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './App.css';
 
 interface ListItem {
@@ -13,11 +13,51 @@ const App: React.FC = () => {
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [manualImageUrl, setManualImageUrl] = useState<string>('');
+  const [recentImages, setRecentImages] = useState<string[]>([]);
   const [listTitle, setListTitle] = useState<string>('Top 25');
   const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
   const dragCounter = useRef(0);
   const touchStartPos = useRef<{ x: number; y: number } | null>(null);
   const touchedItem = useRef<number | null>(null);
+
+  // Load persisted data on startup
+  useEffect(() => {
+    try {
+      const savedList = localStorage.getItem('topList');
+      if (savedList) {
+        const parsed = JSON.parse(savedList);
+        if (Array.isArray(parsed) && parsed.length === 25) {
+          setTopList(parsed);
+        }
+      }
+      const savedRecent = localStorage.getItem('recentImages');
+      if (savedRecent) {
+        const parsedRecent = JSON.parse(savedRecent);
+        if (Array.isArray(parsedRecent)) {
+          setRecentImages(parsedRecent);
+        }
+      }
+      const savedTitle = localStorage.getItem('listTitle');
+      if (savedTitle) {
+        setListTitle(savedTitle);
+      }
+    } catch {
+      // Ignore JSON parse errors
+    }
+  }, []);
+
+  // Persist data whenever it changes
+  useEffect(() => {
+    localStorage.setItem('topList', JSON.stringify(topList));
+  }, [topList]);
+
+  useEffect(() => {
+    localStorage.setItem('listTitle', listTitle);
+  }, [listTitle]);
+
+  useEffect(() => {
+    localStorage.setItem('recentImages', JSON.stringify(recentImages));
+  }, [recentImages]);
 
   const addManualItem = useCallback(() => {
     if (!manualImageUrl.trim()) return;
@@ -34,6 +74,12 @@ const App: React.FC = () => {
       const newList = [...prev];
       newList[nextEmptyIndex] = newItem;
       return newList;
+    });
+
+    setRecentImages(prev => {
+      const url = manualImageUrl.trim();
+      const updated = [url, ...prev.filter((u) => u !== url)];
+      return updated.slice(0, 10);
     });
 
     // Clear input
@@ -235,12 +281,18 @@ const App: React.FC = () => {
             onChange={(e) => setManualImageUrl(e.target.value)}
             placeholder="Paste image URL and press Enter"
             className="manual-url-input"
+            list="recent-images"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 addManualItem();
               }
             }}
           />
+          <datalist id="recent-images">
+            {recentImages.map((url, idx) => (
+              <option value={url} key={idx} />
+            ))}
+          </datalist>
         </div>
       </header>
 
